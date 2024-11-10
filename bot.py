@@ -5,6 +5,7 @@ import os
 import replicate
 import discord
 from io import BytesIO
+from openai import OpenAI
  
 load_dotenv()
  
@@ -17,7 +18,7 @@ bot = commands.Bot(
     intents=intents,
 )
  
- 
+# Stable Diffusion 3.5 Bot
 @bot.command()
 async def flux(ctx, *, prompt):
     """Generate an image from a text prompt using the Stable Diffusion 3.5 model"""
@@ -47,7 +48,7 @@ async def flux(ctx, *, prompt):
         await ctx.send(f"An error occurred: {str(e)}")
         print(f"Error details: {e}")
 
-
+# bytedance SDXL-Lightning Bot
 @bot.command()
 async def byte(ctx, *, prompt):
     """Generate an image from a text prompt using the SDXL-Lightning model"""
@@ -81,4 +82,42 @@ async def byte(ctx, *, prompt):
         await ctx.send(f"An error occurred: {str(e)}")
         print(f"Error details: {e}")
  
+
+# xAI Grok Bot 
+@bot.command()
+async def xai(ctx, *, prompt):
+    """Generate a response using xAI's Grok model"""
+    try:
+        msg = await ctx.send(f'"{prompt}"\n> Thinking...')
+        
+        client = OpenAI(
+            api_key=os.getenv("XAI_API_KEY"),
+            base_url="https://api.x.ai/v1",
+        )
+
+        completion = client.chat.completions.create(
+            model="grok-beta",
+            messages=[
+                {"role": "system", "content": "You are Grok, a chatbot inspired by the Hitchhikers Guide to the Galaxy."},
+                {"role": "user", "content": prompt},
+            ],
+        )
+
+        response = completion.choices[0].message.content
+
+        # Create embed for better presentation
+        embed = discord.Embed(
+            title="Grok's Response", 
+            description=response,
+            color=discord.Color.purple()
+        )
+        embed.set_footer(text=f"Requested by {ctx.author.name}")
+
+        await msg.delete()
+        await ctx.send(embed=embed)
+    
+    except Exception as e:
+        await ctx.send(f"An error occurred: {str(e)}")
+        print(f"Error details: {e}")
+
 bot.run(os.environ["DISCORD_TOKEN"])
