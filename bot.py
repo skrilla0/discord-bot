@@ -6,6 +6,7 @@ import replicate
 import discord
 from io import BytesIO
 from openai import OpenAI
+import anthropic
  
 load_dotenv()
  
@@ -20,7 +21,7 @@ bot = commands.Bot(
  
 # Stable Diffusion 3.5 Bot
 @bot.command()
-async def flux(ctx, *, prompt):
+async def stab(ctx, *, prompt):
     """Generate an image from a text prompt using the Stable Diffusion 3.5 model"""
     try:
         msg = await ctx.send(f'"{prompt}"\n> Generating...')
@@ -110,6 +111,84 @@ async def xai(ctx, *, prompt):
             title="Grok's Response", 
             description=response,
             color=discord.Color.purple()
+        )
+        embed.set_footer(text=f"Requested by {ctx.author.name}")
+
+        await msg.delete()
+        await ctx.send(embed=embed)
+    
+    except Exception as e:
+        await ctx.send(f"An error occurred: {str(e)}")
+        print(f"Error details: {e}")
+
+# Anthropic Claude API 
+
+@bot.command()
+async def claude(ctx, *, prompt):
+    """Generate a response using Anthropic's Claude model"""
+    try:
+        msg = await ctx.send(f'"{prompt}"\n> Thinking...')
+        
+        client = anthropic.Anthropic(
+            api_key=os.getenv("ANTHROPIC_API_KEY"),
+        )
+
+        message = client.messages.create(
+            model="claude-3-sonnet-20240229",
+            max_tokens=1000,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        )
+
+        response = message.content[0].text
+
+        # Create embed for better presentation
+        embed = discord.Embed(
+            title="Claude's Response", 
+            description=response,
+            color=discord.Color.green()
+        )
+        embed.set_footer(text=f"Requested by {ctx.author.name}")
+
+        await msg.delete()
+        await ctx.send(embed=embed)
+    
+    except Exception as e:
+        await ctx.send(f"An error occurred: {str(e)}")
+        print(f"Error details: {e}")
+
+# ChatGPT
+
+@bot.command()
+async def chatgpt(ctx, *, prompt):
+    """Generate a response using OpenAI's GPT-4 model"""
+    try:
+        msg = await ctx.send(f'"{prompt}"\n> Thinking...')
+        
+        client = OpenAI(
+            api_key=os.getenv("OPENAI_API_KEY"),
+        )
+
+        chat_completion = client.chat.completions.create(
+            model="gpt-4",  # or "gpt-3.5-turbo" for a cheaper/faster option
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=1000
+        )
+
+        response = chat_completion.choices[0].message.content
+
+        # Create embed for better presentation
+        embed = discord.Embed(
+            title="ChatGPT's Response", 
+            description=response,
+            color=discord.Color.blue()
         )
         embed.set_footer(text=f"Requested by {ctx.author.name}")
 
