@@ -7,6 +7,7 @@ import discord
 from io import BytesIO
 from openai import OpenAI
 import anthropic
+from groq import Groq
  
 load_dotenv()
  
@@ -86,7 +87,7 @@ async def byte(ctx, *, prompt):
 
 # xAI Grok Bot 
 @bot.command()
-async def xai(ctx, *, prompt):
+async def grok(ctx, *, prompt):
     """Generate a response using xAI's Grok model"""
     try:
         msg = await ctx.send(f'"{prompt}"\n> Thinking...')
@@ -189,6 +190,43 @@ async def chatgpt(ctx, *, prompt):
             title="ChatGPT's Response", 
             description=response,
             color=discord.Color.blue()
+        )
+        embed.set_footer(text=f"Requested by {ctx.author.name}")
+
+        await msg.delete()
+        await ctx.send(embed=embed)
+    
+    except Exception as e:
+        await ctx.send(f"An error occurred: {str(e)}")
+        print(f"Error details: {e}")
+
+# LLama Groq 70B 8192 tool use preview LLM via Groq's API - https://huggingface.co/Groq/Llama-3-Groq-70B-Tool-Use
+
+@bot.command()
+async def llama(ctx, *, prompt):
+    """Generate a response using Groq's LLM models"""
+    try:
+        msg = await ctx.send(f'"{prompt}"\n> Thinking...')
+        
+        client = Groq(
+            api_key=os.getenv("GROQ_API_KEY"),
+        )
+
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            model="llama3-groq-70b-8192-tool-use-preview",  # You can change the model as needed
+            stream=False,
+        )
+
+        response = chat_completion.choices[0].message.content
+
+        # Create embed for better presentation
+        embed = discord.Embed(
+            title="Groq's Response", 
+            description=response,
+            color=discord.Color.orange()
         )
         embed.set_footer(text=f"Requested by {ctx.author.name}")
 
