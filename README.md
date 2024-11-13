@@ -1,1 +1,1 @@
-Discord Bot Python Script for using Replicate API to execute Stable Diffusion models (Stability AI 3.5 Large & Bytedate's SDX Lighting 4 Step). In addition, accessing chatbots: ChatGPT, Claude, and Grok. 
+Discord Bot Python Script for using Replicate API to execute Stable Diffusion models (Stability AI 3.5 Large & Bytedate's SDX Lighting 4 Step). In addition, accessing chatbots: ChatGPT, Claude, LLama (via Groq) and Grok. 
